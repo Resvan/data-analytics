@@ -18,12 +18,9 @@ const StyledToolbar = styled(Toolbar)({
 });
 
 const Icons = styled(Box)(({ theme }) => ({
-  display: "none",
+  display: "flex",
   gap: "2rem",
   alignItems: "center",
-  [theme.breakpoints.up("md")]: {
-    display: "flex",
-  },
 }));
 
 const Navbar = () => {

@@ -1,9 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    mode: "dark",
+    mode: "light",
     user: null,
     token: null,
+    type: 'All',
+    year: '2023'
 };
 
 export const authSlice = createSlice({
@@ -24,8 +26,14 @@ export const authSlice = createSlice({
         setUser: (state, action) => {
             state.user = action.payload.user;
         },
+        setYear: (state, action)=>{
+            state.year = action.payload.year
+        },
+        setType: (state, action)=>{
+            state.type = action.payload.type
+        }
     },
 });
 
-export const { setMode, setLogin, setLogout,  setUser,  } = authSlice.actions;
+export const { setMode, setLogin, setLogout,  setUser, setYear, setType  } = authSlice.actions;
 export default authSlice.reducer;
