@@ -5,7 +5,8 @@ const initialState = {
     user: null,
     token: null,
     type: 'All',
-    year: '2023'
+    year: '2023',
+    duration:'All',
 };
 
 export const authSlice = createSlice({
@@ -31,9 +32,12 @@ export const authSlice = createSlice({
         },
         setType: (state, action)=>{
             state.type = action.payload.type
+        },
+        setDuration: (state, action)=>{
+            state.duration = action.payload.duration
         }
     },
 });
 
-export const { setMode, setLogin, setLogout,  setUser, setYear, setType  } = authSlice.actions;
+export const { setMode, setLogin, setLogout,  setUser, setYear, setType, setDuration  } = authSlice.actions;
 export default authSlice.reducer;

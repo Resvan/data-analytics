@@ -7,7 +7,15 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
 
-function TableComponent({ labels, data }) {
+function TableComponent({ labels, data, all = false }) {
+ 
+  let tableLabels = []
+  if(all) {
+    tableLabels = data.map((d)=>d.id);
+  }else{
+    tableLabels = labels;
+  }
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -20,8 +28,16 @@ function TableComponent({ labels, data }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {labels?.map((label, index) => {
-            const rowData = data?.find((item) => item.id === index - 1);
+          {tableLabels?.map((label, index) => {
+            let rowData;
+
+            if(all){
+              rowData = data?.find((item)=> item.id === label)
+            }else{
+               rowData = data?.find((item,) => {
+               return item.id === index + 1
+              });
+            }
 
             return (
               <TableRow

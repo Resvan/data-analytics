@@ -99,3 +99,37 @@ export const getUniqueYears = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+export const getAllData = async (req, res) => {
+  try {
+    const data = await DataSet.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(req.user.id),
+        },
+      },
+      {
+        $group: {
+          _id: { $year: '$date' },
+          total: { $sum: '$totalCount' },
+          sold: { $sum: '$soldCount' },
+        },
+      },
+      {
+        $project: {
+          _id: 0, 
+          id: '$_id',
+          data: {
+            total: '$total',
+            sold: '$sold',
+          },
+        },
+      },
+    ]);
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};

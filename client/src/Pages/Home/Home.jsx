@@ -16,6 +16,7 @@ import { PieChart } from "../../Components/PieChart/PieChart";
 import { PolarAreaChart } from "../../Components/PolarArea/PolarAreaChart";
 import TypeSelect from "../../Components/TypeSelect/TypeSelect";
 import TableComponent from "../../Components/TableComponent/TableComponent";
+import DataDuration from "../../Components/DataDuration/DataDuration";
 
 
 
@@ -44,7 +45,10 @@ export default function Home() {
   const token = useSelector((state) => state.token);
   const selectedYear = useSelector((state) => state.year);
   const type = useSelector((state) => state.type);
-
+  const selectedDuration = useSelector((state) => state.duration);
+  const [allData, setAllData] = useState({});
+  const [tableAll, setTableAll] = useState([]);
+  const [allPie, setAllPie] = useState({});
 
 
   async function getChartData() {
@@ -115,55 +119,120 @@ export default function Home() {
     }
   }
 
+  async function getChartDataAll(){
+    try {
+      let { data } = await axios.get(`/data/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+     setTableAll(data);
+     const chartData = {
+      labels: data.map((d)=> d.id),
+      datasets:[
+        {
+          label: "Total",
+          data: data.map((d) => d.data.total),
+          borderColor: "rgba(255, 99, 132)",
+          backgroundColor: "rgba(255, 99, 132, 0.5)",
+        },
+        {
+          label: "Sold",
+          data: data.map((d) => d.data.sold),
+          borderColor: "rgba(53, 162, 235)",
+          backgroundColor: "rgba(53, 162, 235, 0.5)",
+        },
+      ]
+     }
+
+     const generateRandomColor = () => {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    };
+
+     const pieChartData = {
+      labels: data.map((d)=> d.id),
+      datasets: [
+        {
+          label: "Sold",
+          data: data.map((d) => d.data.sold),
+          backgroundColor: data.map(() => generateRandomColor()),
+        },
+      ],
+    
+    };
+    setAllPie(pieChartData);
+
+     setAllData(chartData);
+     
+    } catch (error) {
+      ((err) => {
+        toast.error(err, {
+          position: "top-center",
+        });
+      })(error.response.data.error);
+    }
+  }
+
   useEffect(() => {
     getChartData();
-  }, [selectedYear]);
+    getChartDataAll();
+  }, [selectedYear, selectedDuration]);
 
   return (
     <>
-      {tabletData.length > 0 ? (
+      {tabletData.length > 0 || tableAll.length > 0 ? (
         <Grid container spacing={2} paddingX={3} marginTop={3}>
           <Grid item xs={12} sx={{ display: "flex", justifyContent:"space-between" }}>
-            <YearSelect/>
+            <DataDuration/>
+            {
+              selectedDuration == "Year Wise" && 
+              <YearSelect/>
+            }
             <TypeSelect />
           </Grid>
           {type === "Bar Vertical" || type === "All" ? (
             <Grid item xs={12} md={6}>
-              <BarChart data={data} />
+              <BarChart data={selectedDuration === 'Year Wise' ? data : allData} />
             </Grid>
           ) : null}
 
           {type === "Bar Horizontal" || type === "All" ? (
             <Grid item xs={12} md={6}>
-              <HorizontalBarChart data={data} />
+              <HorizontalBarChart data={selectedDuration === 'Year Wise' ? data : allData} />
             </Grid>
           ) : null}
 
           {type === "Bar Stacked" || type === "All" ? (
             <Grid item xs={12} md={6}>
-              <StackedBarChart data={data} />
+              <StackedBarChart data={selectedDuration === 'Year Wise' ? data : allData} />
             </Grid>
           ) : null}
 
           {type === "Line Chart" || type === "All" ? (
             <Grid item xs={12} md={6}>
-              <AreaChart data={data} />
+              <AreaChart data={selectedDuration === 'Year Wise' ? data : allData} />
             </Grid>
           ) : null}
 
           {type === "Pie Chart" || type === "All" ? (
             <Grid item xs={12} md={6}>
-              <PieChart data={pieChartData} />
+              <PieChart data={selectedDuration === 'Year Wise' ? pieChartData : allPie} />
             </Grid>
           ) : null}
           {type === "Polar Chart" || type === "All" ? (
             <Grid item xs={12} md={6}>
-              <PolarAreaChart data={pieChartData} />
+              <PolarAreaChart data={selectedDuration === 'Year Wise' ? pieChartData : allPie} />
             </Grid>
           ) : null}
           {type === "Table" || type === "All" ? (
             <Grid item xs={12} md={6}>
-              <TableComponent labels={labels} data={tabletData} />
+              <TableComponent labels={labels} data={selectedDuration === 'Year Wise' ? tabletData : tableAll} all={selectedDuration === 'Year Wise' ? false : true} />
             </Grid>
           ) : null}
         </Grid>
